@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Paper Ream Inventory Management</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+body{
+background:#eef4f9;
+padding:30px;
+color:#1f2937;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+}
+
+.header{
+background:linear-gradient(135deg,#004b8d,#0072bc);
+color:white;
+padding:30px;
+border-radius:18px;
+margin-bottom:25px;
+box-shadow:0 10px 25px rgba(0,0,0,0.12);
+}
+
+.header-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:20px;
+}
+
+.logo{
+font-size:34px;
+font-weight:bold;
+}
+
+.title{
+flex:1;
+text-align:center;
+}
+
+.title h1{
+font-size:36px;
+margin-bottom:8px;
+}
+
+.title p{
+font-size:18px;
+}
+
+.run-section{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.run-btn{
+background:#22c55e;
+color:white;
+border:none;
+padding:14px 30px;
+border-radius:12px;
+cursor:pointer;
+font-size:16px;
+font-weight:700;
+transition:0.3s;
+}
+
+.run-btn:hover{
+background:#16a34a;
+}
+
+.run-btn:disabled{
+background:#94a3b8;
+cursor:not-allowed;
+}
+
+.run-status{
+font-size:15px;
+font-weight:600;
+color:white;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);
+margin-bottom:22px;
+}
+
+.filter-row{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+align-items:end;
+}
+
+.field{
+flex:1;
+min-width:250px;
+}
+
+label{
+display:block;
+margin-bottom:10px;
+font-weight:600;
+font-size:18px;
+color:#004b8d;
+}
+
+select,input{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:1px solid #cbd5e1;
+font-size:16px;
+}
+
+.search-section{
+display:flex;
+gap:15px;
+margin-top:25px;
+flex-wrap:wrap;
+}
+
+.search-section input{
+flex:1;
+}
+
+button{
+background:#0072bc;
+color:white;
+border:none;
+padding:14px 28px;
+border-radius:12px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+}
+
+button:hover{
+background:#005d99;
+}
+
+.summary-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:15px;
+color:#004b8d;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+thead{
+background:#004b8d;
+color:white;
+}
+
+th,td{
+padding:16px;
+text-align:left;
+border-bottom:1px solid #e5e7eb;
+}
+
+tbody tr:hover{
+background:#f8fafc;
+}
+
+.total-row{
+background:#dbeafe;
+font-weight:bold;
+}
+
+.result-count{
+margin:18px 0;
+font-weight:600;
+font-size:17px;
+}
+
+.ream{
+color:#7c3aed;
+font-weight:600;
+}
+
+.sheet{
+color:#0f766e;
+font-weight:600;
+}
+
+.ton{
+color:#b45309;
+font-weight:600;
+}
+
+.reset-btn{
+background:#64748b;
+}
+
+.reset-btn:hover{
+background:#475569;
+}
+
+.button-group{
+display:flex;
+gap:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<div class="header-top">
+
+<div class="logo">SCGP</div>
+
+<div class="title">
+
+<h1>Paper Ream Inventory Management</h1>
+
+<p>ระบบการจัดการสต๊อกกระดาษรีม TCSB</p>
+
+</div>
+
+<div class="run-section">
+
+<button
+class="run-btn"
+id="runBtn"
+onclick="run_stock()"
+>
+RUN
+</button>
+
+<div class="run-status" id="runStatus"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="filter-row">
+
+<div class="field">
+
+<label>Paper Type :</label>
+
+<select id="paperType" onchange="updateGramOptions()">
+
+<option value="">-- เลือกประเภทกระดาษ --</option>
+
+<option value="Duplex">Duplex</option>
+
+<option value="LC">LC</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Gram :</label>
+
+<select id="gram">
+
+<option value="">-- เลือกแกรม --</option>
+
+</select>
+
+</div>
+
+<div class="button-group">
+
+<button onclick="filterData()">Filter</button>
+
+<button class="reset-btn" onclick="resetData()">Reset</button>
+
+</div>
+
+</div>
+
+<div class="search-section">
+
+<input
+type="text"
+id="searchInput"
+placeholder="ค้นหาข้อมูลสต๊อกกระดาษ เช่น CWT170 DBS250..."
+>
+
+<button onclick="searchData()">ค้นหา</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="summary-title">Stock Summary</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Paper Type</th>
+<th>Ream</th>
+<th>Sheet</th>
+<th>TON</th>
+</tr>
+
+</thead>
+
+<tbody id="summaryBody"></tbody>
+
+</table>
+
+</div>
+
+<div class="result-count" id="resultCount"></div>
+
+<div class="card">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Description</th>
+<th>Ream</th>
+<th>Sheet</th>
+<th>TON</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let stockData = [];
+
+const tableBody = document.getElementById("tableBody");
+const summaryBody = document.getElementById("summaryBody");
+
+async function loadCSV(){
+
+    try{
+
+        const response = await fetch(
+            "http://localhost:8080/get_stock"
+        );
+
+        stockData = await response.json();
+
+        displayTable(stockData);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert("โหลดข้อมูล CSV ไม่สำเร็จ");
+
+    }
+
+}
+
+function displayTable(data){
+
+    tableBody.innerHTML = "";
+
+    document.getElementById("resultCount").innerHTML =
+        "จำนวนข้อมูลทั้งหมด : " + data.length + " รายการ";
+
+    if(data.length === 0){
+
+        tableBody.innerHTML = `
+        <tr>
+            <td colspan="4" style="text-align:center;">
+                ไม่พบข้อมูล
+            </td>
+        </tr>
+        `;
+
+        summaryBody.innerHTML = "";
+
+        return;
+    }
+
+    data.forEach(item => {
+
+        tableBody.innerHTML += `
+        <tr>
+            <td>${item.description}</td>
+            <td class="ream">${item.ream.toLocaleString()}</td>
+            <td class="sheet">${item.sheet.toLocaleString()}</td>
+            <td class="ton">${item.ton.toLocaleString()}</td>
+        </tr>
+        `;
+
+    });
+
+    generateSummary(data);
+
+}
+
+function generateSummary(data){
+
+    summaryBody.innerHTML = "";
+
+    const summary = {};
+
+    data.forEach(item => {
+
+        let group = "";
+
+        if(item.description.includes("CWT170")){
+            group = "CWT170";
+        }
+        else if(item.description.includes("DBS 250")){
+            group = "DBS 250";
+        }
+        else if(item.description.includes("DBS 270")){
+            group = "DBS 270";
+        }
+        else if(item.description.includes("DBS 300")){
+            group = "DBS 300";
+        }
+        else if(item.description.includes("DBS")){
+            group = "DBS";
+        }
+        else{
+            group = "OTHER";
+        }
+
+        if(!summary[group]){
+            summary[group] = {
+                ream:0,
+                sheet:0,
+                ton:0
+            };
+        }
+
+        summary[group].ream += item.ream;
+        summary[group].sheet += item.sheet;
+        summary[group].ton += item.ton;
+
+    });
+
+    let totalReam = 0;
+    let totalSheet = 0;
+    let totalTon = 0;
+
+    Object.keys(summary).forEach(key => {
+
+        summaryBody.innerHTML += `
+        <tr>
+            <td>${key}</td>
+            <td class="ream">${summary[key].ream.toLocaleString()}</td>
+            <td class="sheet">${summary[key].sheet.toLocaleString()}</td>
+            <td class="ton">${summary[key].ton.toLocaleString()}</td>
+        </tr>
+        `;
+
+        totalReam += summary[key].ream;
+        totalSheet += summary[key].sheet;
+        totalTon += summary[key].ton;
+
+    });
+
+    summaryBody.innerHTML += `
+    <tr class="total-row">
+        <td>Total</td>
+        <td>${totalReam.toLocaleString()}</td>
+        <td>${totalSheet.toLocaleString()}</td>
+        <td>${totalTon.toLocaleString()}</td>
+    </tr>
+    `;
+
+}
+
+function updateGramOptions(){
+
+    const paperType =
+        document.getElementById("paperType").value;
+
+    const gramSelect =
+        document.getElementById("gram");
+
+    gramSelect.innerHTML =
+        '<option value="">-- เลือกแกรม --</option>';
+
+    if(paperType === "Duplex"){
+
+        [250,270,300].forEach(g => {
+
+            gramSelect.innerHTML +=
+                `<option value="${g}">${g}</option>`;
+
+        });
+
+    }
+
+    if(paperType === "LC"){
+
+        gramSelect.innerHTML +=
+            '<option value="170">170</option>';
+
+    }
+
+}
+
+function filterData(){
+
+    const paperType =
+        document.getElementById("paperType").value;
+
+    const gram =
+        document.getElementById("gram").value;
+
+    let filtered = stockData;
+
+    if(paperType === "LC"){
+
+        filtered = filtered.filter(item =>
+            item.description.includes("CWT170")
+        );
+
+    }
+
+    if(paperType === "Duplex"){
+
+        filtered = filtered.filter(item =>
+            item.description.includes("DBS")
+        );
+
+    }
+
+    if(gram){
+
+        filtered = filtered.filter(item =>
+            item.description.includes(gram + "G") ||
+            item.description.includes("CWT" + gram)
+        );
+
+    }
+
+    displayTable(filtered);
+
+}
+
+function searchData(){
+
+    const keyword =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+    const filtered =
+        stockData.filter(item =>
+            item.description
+            .toLowerCase()
+            .includes(keyword)
+        );
+
+    displayTable(filtered);
+
+}
+
+function resetData(){
+
+    document.getElementById("paperType").value = "";
+
+    document.getElementById("gram").innerHTML =
+        '<option value="">-- เลือกแกรม --</option>';
+
+    document.getElementById("searchInput").value = "";
+
+    displayTable(stockData);
+
+}
+
+async function run_stock(){
+
+    const runBtn =
+        document.getElementById("runBtn");
+
+    const runStatus =
+        document.getElementById("runStatus");
+
+    runBtn.disabled = true;
+
+    runStatus.innerHTML = "Running...";
+
+    try{
+
+        const response = await fetch(
+            "http://localhost:8080/run_stock",
+            {
+                method:"GET",
+                mode:"cors"
+            }
+        );
+
+        const result = await response.text();
+
+        if(result === "success"){
+
+            runStatus.innerHTML =
+                "✅ Run Finished!";
+
+            alert("Run Finished!");
+
+            setTimeout(() => {
+                loadCSV();
+            }, 3000);
+
+        }
+        else{
+
+            runStatus.innerHTML =
+                "❌ Run Failed";
+
+            alert("Run Failed");
+
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        runStatus.innerHTML =
+            "❌ Cannot connect server";
+
+        alert("Cannot connect server");
+
+    }
+
+    runBtn.disabled = false;
+
+}
+
+loadCSV();
+
+</script>
+
+</body>
+
+</html>
